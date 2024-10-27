@@ -19,8 +19,6 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "preinstall": "echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}' > .npmrc",
-    "install": "npm install",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
