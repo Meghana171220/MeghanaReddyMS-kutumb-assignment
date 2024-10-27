@@ -7,7 +7,7 @@ export const login = async (username, otp) => {
   return response.data;
 };
 
-export const getQuotes = async (limit = 20, offset = 0) => {
+export const getQuotes = async (limit = 10, offset = 0) => {
   const response = await axios.get(
     `${API_URL}/getQuotes?limit=${limit}&offset=${offset}`,
     {

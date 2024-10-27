@@ -21,6 +21,8 @@ const QuoteList = () => {
         if (data.length < 10) setHasMore(false);
         setIsInitialFetch(false);
       } catch (error) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("username");
         console.error("Failed to fetch quotes", error);
       } finally {
         setIsLoading(false);
@@ -28,6 +30,7 @@ const QuoteList = () => {
     };
 
     if (hasMore && (isInitialFetch || offset > 0)) {
+      console.log("called");
       fetchQuotes();
     }
   }, [offset, hasMore, isInitialFetch]);
@@ -103,6 +106,7 @@ const QuoteList = () => {
                                 <p className="popover-text">{quote.text}</p>
                                 <button
                                   className="close-popover"
+                                  data-testid="close-popover"
                                   onClick={() => handleMoreClick(index)}
                                 >
                                   Close

@@ -5,6 +5,7 @@ import {
   Routes,
   Navigate,
 } from "react-router-dom";
+import { jwtDecode } from "jwt-decode"; // Import jwt-decode to decode the JWT
 import Login from "./components/login/Login";
 import Dashboard from "./components/dashboard/Dashboard";
 import QuoteCreationPage from "./components/createquote/QuoteCreation";
@@ -14,7 +15,37 @@ const App = () => {
   const [token, setToken] = useState(localStorage.getItem("token"));
 
   useEffect(() => {
-    setToken(localStorage.getItem("token"));
+    const checkTokenExpiry = () => {
+      const storedToken = localStorage.getItem("token");
+
+      if (storedToken) {
+        try {
+          const decodedToken = jwtDecode(storedToken);
+          const currentTime = Date.now() / 1000;
+          if (decodedToken.exp <= currentTime) {
+            console.log("Token expired");
+            logoutUser();
+          } else {
+            setToken(storedToken);
+          }
+        } catch (error) {
+          console.error("Failed to decode token:", error);
+          logoutUser();
+        }
+      } else {
+        logoutUser();
+      }
+    };
+
+    const logoutUser = () => {
+      localStorage.removeItem("token");
+      setToken(null);
+    };
+
+    checkTokenExpiry();
+
+    const interval = setInterval(checkTokenExpiry, 60000);
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -30,6 +61,8 @@ const App = () => {
             )
           }
         />
+
+        {/* Routes that require authentication */}
         <Route element={<SidebarLayout token={token} setToken={setToken} />}>
           <Route
             path="/dashboard"
@@ -52,6 +85,9 @@ const App = () => {
             }
           />
         </Route>
+
+        {/* Default redirect if no matching routes */}
+        <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
     </Router>
   );
