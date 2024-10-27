@@ -14,6 +14,7 @@
   border-radius: 0.25rem;
   height: auto;
   max-height: 50vh;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .toast-content {
@@ -24,7 +25,7 @@
 
 .toast-icon {
   margin-right: 10px;
-  margin-top: -37px;
+  margin-top: -36px;
 }
 
 .toast-heading {
@@ -39,6 +40,26 @@
   font-size: 1.5em;
   cursor: pointer;
 }
+
 .success-message {
   margin: 0.25rem;
+}
+
+/* Mobile responsive styles */
+@media (max-width: 600px) {
+  .toast {
+    width: 80%;
+    right: 5%;
+    margin-left: 10px;
+    top: 16px;
+    padding: 12px;
+  }
+
+  .toast-heading {
+    font-size: 0.9em;
+  }
+
+  .toast-close {
+    font-size: 1.2em;
+  }
 }
