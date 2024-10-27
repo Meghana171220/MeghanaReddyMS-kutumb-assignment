@@ -1,0 +1,44 @@
+.toast {
+  position: fixed;
+  color: black;
+  padding: 15px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  right: 18px;
+  top: 32px;
+  background: #c3e8d2;
+  outline: 1px solid #018249;
+  width: 400px;
+  border-radius: 0.25rem;
+  height: auto;
+  max-height: 50vh;
+}
+
+.toast-content {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.toast-icon {
+  margin-right: 10px;
+  margin-top: -37px;
+}
+
+.toast-heading {
+  margin: 0;
+  font-size: 1em;
+}
+
+.toast-close {
+  background: none;
+  border: none;
+  color: black;
+  font-size: 1.5em;
+  cursor: pointer;
+}
+.success-message {
+  margin: 0.25rem;
+}
