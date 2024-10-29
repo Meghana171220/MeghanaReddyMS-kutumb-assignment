@@ -66,3 +66,16 @@
 .login-button:hover {
   background-color: #0056b3;
 }
+.label {
+  font-size: 14px;
+  padding-bottom: 8px;
+  display: block;
+  font-weight: bold;
+  color: #333;
+}
+
+.login-input,
+.otp-container .otp-input {
+  margin-top: 4px;
+  padding: 8px;
+}
