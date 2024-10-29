@@ -82,6 +82,7 @@ const Login = ({ setToken }) => {
           onChange={handleUsernameChange}
           required
           className="login-input"
+          autoComplete="off"
         />
         {usernameError && <p className="error-text">{usernameError}</p>}
 
