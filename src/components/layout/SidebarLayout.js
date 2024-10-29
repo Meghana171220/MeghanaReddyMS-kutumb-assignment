@@ -1,11 +1,13 @@
-import React, { useState } from "react";
-import { useNavigate, NavLink, Outlet } from "react-router-dom";
+import React, { useState, useRef } from "react";
+import { useNavigate, NavLink, Outlet, useLocation } from "react-router-dom";
 import "./SidebarLayout.css";
 
 const SidebarLayout = ({ token, setToken }) => {
   const [isNavbarOpen, setNavbarOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState("dashboard");
+  const location = useLocation();
   const navigate = useNavigate();
+  const navbarRef = useRef(null);
+  const hamburgerRef = useRef(null);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -14,9 +16,29 @@ const SidebarLayout = ({ token, setToken }) => {
     navigate("/login");
   };
 
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-    setNavbarOpen(false);
+  const isActiveLink = (path) => location.pathname === path;
+
+  const handleClickOutside = (event) => {
+    if (
+      navbarRef.current &&
+      !navbarRef.current.contains(event.target) &&
+      hamburgerRef.current !== event.target
+    ) {
+      setNavbarOpen(false);
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+  };
+
+  const toggleNavbar = () => {
+    setNavbarOpen((prev) => {
+      const newState = !prev;
+      if (newState) {
+        document.addEventListener("mousedown", handleClickOutside);
+      } else {
+        document.removeEventListener("mousedown", handleClickOutside);
+      }
+      return newState;
+    });
   };
 
   return (
@@ -25,9 +47,10 @@ const SidebarLayout = ({ token, setToken }) => {
         <div className="navbar-left">
           <button
             className="hamburger"
-            onClick={() => setNavbarOpen(!isNavbarOpen)}
+            onClick={toggleNavbar}
+            ref={hamburgerRef}
           >
-            &#9776;
+            {isNavbarOpen ? "x" : "☰"}
           </button>
           <h2 className="navbar-title">Quote Management</h2>
         </div>
@@ -36,21 +59,18 @@ const SidebarLayout = ({ token, setToken }) => {
         </button>
       </header>
 
-      <nav className={`navbar-links ${isNavbarOpen ? "expanded" : ""}`}>
+      <nav
+        ref={navbarRef}
+        className={`navbar-links ${isNavbarOpen ? "expanded" : ""}`}
+      >
         <ul>
-          <li className={currentPage === "dashboard" ? "active-link" : ""}>
-            <NavLink
-              to="/dashboard"
-              onClick={() => handlePageChange("dashboard")}
-            >
+          <li className={isActiveLink("/dashboard") ? "active-link" : ""}>
+            <NavLink to="/dashboard" onClick={() => setNavbarOpen(false)}>
               Dashboard
             </NavLink>
           </li>
-          <li className={currentPage === "create-quote" ? "active-link" : ""}>
-            <NavLink
-              to="/create-quote"
-              onClick={() => handlePageChange("create-quote")}
-            >
+          <li className={isActiveLink("/create-quote") ? "active-link" : ""}>
+            <NavLink to="/create-quote" onClick={() => setNavbarOpen(false)}>
               Create Quote
             </NavLink>
           </li>
