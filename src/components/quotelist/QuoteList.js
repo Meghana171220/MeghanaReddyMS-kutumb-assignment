@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { getQuotes } from "../../services/api";
 import "./QuoteList.css";
 import { useNavigate } from "react-router-dom";
@@ -10,15 +10,20 @@ const QuoteList = () => {
   const [isInitialFetch, setIsInitialFetch] = useState(true);
   const [popoverQuoteIndex, setPopoverQuoteIndex] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const moreButtonRefs = useRef([]);
+  const observerRef = useRef(null);
   const navigate = useNavigate();
+
+  const loadMore = useCallback(() => {
+    if (hasMore) setOffset((prev) => prev + 10);
+  }, [hasMore]);
 
   useEffect(() => {
     const fetchQuotes = async () => {
+      setIsLoading(true);
       try {
         const { data } = await getQuotes(10, offset);
         setQuotes((prev) => (offset === 0 ? data : [...prev, ...data]));
-        if (data.length < 10) setHasMore(false);
+        setHasMore(data.length === 10);
         setIsInitialFetch(false);
       } catch (error) {
         localStorage.removeItem("token");
@@ -30,14 +35,9 @@ const QuoteList = () => {
     };
 
     if (hasMore && (isInitialFetch || offset > 0)) {
-      console.log("called");
       fetchQuotes();
     }
   }, [offset, hasMore, isInitialFetch]);
-
-  const loadMore = () => {
-    if (hasMore) setOffset((prev) => prev + 10);
-  };
 
   const formatDate = (date) => {
     return new Date(date).toLocaleString("en-US", {
@@ -56,9 +56,29 @@ const QuoteList = () => {
     setPopoverQuoteIndex(popoverQuoteIndex === index ? null : index);
   };
 
+  useEffect(() => {
+    const currentObserverRef = observerRef.current;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !isLoading) {
+          loadMore();
+        }
+      },
+      { threshold: 0.5 }
+    );
+
+    if (currentObserverRef) {
+      observer.observe(currentObserverRef);
+    }
+
+    return () => {
+      if (currentObserverRef) observer.unobserve(currentObserverRef);
+    };
+  }, [hasMore, isLoading, loadMore, quotes.length]);
+
   return (
     <div className="quote-list-container">
-      {isLoading ? (
+      {isLoading && isInitialFetch ? (
         <>
           <div className="spinner"></div>
           <div>Loading...</div>
@@ -96,7 +116,6 @@ const QuoteList = () => {
                             <span
                               className="more-button"
                               onClick={() => handleMoreClick(index)}
-                              ref={(el) => (moreButtonRefs.current[index] = el)}
                             >
                               More
                             </span>
@@ -106,7 +125,6 @@ const QuoteList = () => {
                                 <p className="popover-text">{quote.text}</p>
                                 <button
                                   className="close-popover"
-                                  data-testid="close-popover"
                                   onClick={() => handleMoreClick(index)}
                                 >
                                   Close
@@ -123,11 +141,13 @@ const QuoteList = () => {
                 </li>
               ))}
           </ul>
-          {hasMore && !isLoading && (
-            <button onClick={loadMore} className="load-more-button">
-              Load More
-            </button>
+          {isLoading && !isInitialFetch && (
+            <div className="mt-16 flex flex-col items-center">
+              <div className="spinner"></div>
+              <div>...loading more</div>
+            </div>
           )}
+          <div ref={observerRef} className="observer"></div>
         </>
       )}
 
