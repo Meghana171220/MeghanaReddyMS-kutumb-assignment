@@ -4,7 +4,7 @@ import "./Login.css";
 
 const Login = ({ setToken }) => {
   const [username, setUsername] = useState("");
-  const [otp, setOtp] = useState(["", "", "", ""]); // Store each OTP digit
+  const [otp, setOtp] = useState(["", "", "", ""]);
   const [usernameError, setUsernameError] = useState("");
   const [apiError, setApiError] = useState("");
 
@@ -15,7 +15,7 @@ const Login = ({ setToken }) => {
     setUsername(value);
 
     if (value.length > 0 && value.length < 3) {
-      setUsernameError("Username must be at least 3 characters long.");
+      setUsernameError("The username must be at least 3 characters long.");
     } else {
       setUsernameError("");
     }
@@ -24,30 +24,25 @@ const Login = ({ setToken }) => {
   const handleOtpChange = (index, value) => {
     const newOtp = [...otp];
 
-    // Allow only single character input
     if (value.length > 1) {
       value = value.charAt(0);
     }
 
-    // Update the OTP array
     newOtp[index] = value;
     setOtp(newOtp);
 
-    // Move to the next input if a digit is entered and it's not the last box
     if (value && index < 3) {
       inputRefs.current[index + 1].focus();
     }
 
-    // Handle backspace to clear the current input and move to the previous one
     if (!value) {
       if (index > 0) {
-        inputRefs.current[index - 1].focus(); // Focus on the previous input
+        inputRefs.current[index - 1].focus();
       }
     }
   };
 
   const handleKeyDown = (index, event) => {
-    // Handle backspace key for the current input
     if (event.key === "Backspace" && !otp[index]) {
       if (index > 0) {
         inputRefs.current[index - 1].focus();
@@ -59,7 +54,7 @@ const Login = ({ setToken }) => {
     e.preventDefault();
     if (usernameError) return;
 
-    const otpString = otp.join(""); // Convert the array to a string
+    const otpString = otp.join("");
     try {
       const data = await login(username, otpString);
       localStorage.setItem("token", data.token);
@@ -75,33 +70,44 @@ const Login = ({ setToken }) => {
     <div className="login-container">
       <form className="login-form" onSubmit={handleSubmit}>
         <h2 className="login">Login</h2>
+
+        <label htmlFor="username" className="label">
+          Username
+        </label>
         <input
+          id="username"
           type="text"
-          placeholder="Username"
+          placeholder="Enter your username"
           value={username}
           onChange={handleUsernameChange}
           required
           className="login-input"
         />
         {usernameError && <p className="error-text">{usernameError}</p>}
+
         {username && (
-          <div className="otp-container">
-            {otp.map((digit, index) => (
-              <input
-                key={index}
-                type="text"
-                maxLength="1"
-                placeholder="-"
-                value={digit}
-                onChange={(e) => handleOtpChange(index, e.target.value)}
-                onKeyDown={(e) => handleKeyDown(index, e)}
-                className="otp-input"
-                ref={(ref) => (inputRefs.current[index] = ref)}
-              />
-            ))}
-          </div>
+          <>
+            <label className="label">Enter OTP</label>
+            <div className="otp-container">
+              {otp.map((digit, index) => (
+                <input
+                  key={index}
+                  type="text"
+                  maxLength="1"
+                  placeholder="-"
+                  value={digit}
+                  onChange={(e) => handleOtpChange(index, e.target.value)}
+                  onKeyDown={(e) => handleKeyDown(index, e)}
+                  className="otp-input"
+                  ref={(ref) => (inputRefs.current[index] = ref)}
+                />
+              ))}
+            </div>
+          </>
         )}
+
         {apiError && <p className="error-text">{apiError}</p>}
+
         <button type="submit" className="login-button">
           Login
         </button>
